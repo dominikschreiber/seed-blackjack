@@ -46,8 +46,8 @@ angular.module('blackjack.cards', ['ng'])
     function getall() {
         return $q(function(resolve) {
             resolve(_.chain(['♣', '♠', '♥', '♦'])
-                    .map(function(value) {
-                        return _.map(_.range(2,11).concat(['B', 'D', 'K', 'A']), function(suit) {
+                    .map(function(suit) {
+                        return _.map(_.range(2,11).concat(['B', 'D', 'K', 'A']), function(value) {
                             return {value: value, suit: suit};
                         });
                     })
@@ -104,9 +104,20 @@ angular.module('blackjack.engine', ['blackjack.cards', 'ng'])
                 });
             },
 
-            /** @return a promise to resolve with the information stored for player `id` */
-            getPlayer: function(id) {
-                return $q(function(resolve) { resolve(players[id]); });
+            /** @return a promise to resolve with the minimal score player `id` has (i.e. treating all 'A' as 1, not 11) */
+            getMinimalScoreForPlayer: function(id) {
+                return $q(function(resolve) {
+                    resolve(_.chain(players[id].hand)
+                             .map(function(card) {
+                                switch (card.value) {
+                                    case 'A': return 1;
+                                    case 'B': case 'D': case 'K': return 10;
+                                    default: return window.parseInt(card.value);
+                                }
+                             })
+                             .sum()
+                             .value());
+                });
             },
 
             /** @return a promise to resolve with a drawn card for player `id` */
@@ -119,7 +130,13 @@ angular.module('blackjack.engine', ['blackjack.cards', 'ng'])
                     } else {
                         cards.draw().then(function(card) {
                             players[id].hand.push(card);
-                            resolve({card: card});
+                            engine.getMinimalScoreForPlayer(id).then(function(score) {
+                                resolve({
+                                    card: card,
+                                    canDrawMoreCards: score < 21,
+                                    isValid: score < 22
+                                });
+                            });
                         });
                     }
                 });
@@ -163,10 +180,14 @@ angular.module('blackjack.player', ['blackjack.engine', 'ng'])
         templateUrl: 'player.tpl.html',
         link: function($scope, $element, $attributes) {
             $scope.hand = [];
+            $scope.canDrawMoreCards = true;
+            $scope.isValid = true;
 
             $scope.hit = function() {
                 engine.drawCardForPlayer($scope.name).then(function(result) {
                     $scope.hand.push(result.card);
+                    $scope.canDrawMoreCards = result.canDrawMoreCards;
+                    $scope.isValid = result.isValid;
                 });
             };
         }
@@ -174,11 +195,11 @@ angular.module('blackjack.player', ['blackjack.engine', 'ng'])
 });
 </script>
 <script type="text/ng-template" id="player.tpl.html">
-<ul>
+<ul ng-class="{'text-danger': !isValid, 'text-success': !canDrawMoreCards && isValid}">
     <li ng-repeat="card in hand" ng-bind="card.suit + card.value"></li>
 </ul>
 <button type="button" ng-click="stick()">stick</button>
-<button type="button" ng-click="hit()">hit</button>
+<button type="button" ng-click="hit()" ng-disabled="!canDrawMoreCards">hit</button>
 </script>
 </body>
 
