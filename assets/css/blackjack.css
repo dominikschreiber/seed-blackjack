@@ -1,5 +1,77 @@
 body {
     padding: 48px;
-    background-image: url(http://www.transparenttextures.com/patterns/pool-table.png);
     background-color: #00420f;
+}
+
+.alert {
+    padding: 12px;
+    background-color: #fff;
+}
+
+.btn {
+    display: inline-block;
+    height: 96px;
+    width: 96px;
+
+    border: 12px dotted transparent;
+    border-radius: 50%;
+
+    text-align: center;
+    font-size: 24px;
+    line-height: 24px;
+
+    transition: all .2s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-default {
+    border-color: #999;
+    background-color: #eee;
+    color: #999;
+}
+.btn-default:hover,
+.btn-default:focus,
+.btn-default:active {
+    border-color: #888;
+    background-color: #ddd;
+    color: #888;
+}
+
+.btn-success {
+    border-color: #393;
+    background-color: #efe;
+    color: #393;
+}
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:active {
+    border-color: #282;
+    background-color: #fff;
+    color: #282;
+}
+
+.btn-danger {
+    border-color: #933;
+    background-color: #fee;
+    color: #933;
+}
+.btn-danger:hover,
+.btn-danger:focus,
+.btn-danger:active {
+    border-color: #822;
+    background-color: #fff;
+    color: #822;
+}
+
+.btn-info {
+    border-color: #339;
+    background-color: #eef;
+    color: #339;
+}
+.btn-info:hover,
+.btn-info:focus,
+.btn-info:active {
+    border-color: #228;
+    background-color: #fff;
+    color: #228;
 }
