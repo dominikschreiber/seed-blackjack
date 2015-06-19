@@ -1,10 +1,7 @@
 <div class="card"
-     ng-class="'card-' + suit + ' card-' + value" ng-style="{
-        'left': '-' + (index * 150) + 'px',
-        'transform': 'rotate(' + (5 * (index - 0.5 - of / 2)) + 'deg)'
-    }">
+     ng-class="'card-' + content.suit + ' card-' + content.value">
     <div class="card-content">
-        <div class="card-value">{{value}}</div>
-        <div class="card-suit">{{suit}}</div>
+        <div class="card-value">{{content.value}}</div>
+        <div class="card-suit">{{content.suit}}</div>
     </div>
 </div>

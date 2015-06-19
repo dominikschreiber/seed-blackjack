@@ -5,10 +5,7 @@ angular.module('blackjack.cardDirective', ['ng'])
 .directive('card', function() {
     return {
         scope: {
-            value: '@',
-            suit: '@',
-            index: '@',
-            of: '@'
+            content: '='
         },
         templateUrl: 'directives/card/cardDirective.tpl.html'
     };
