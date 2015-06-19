@@ -1,2 +1,10 @@
-<player ng-repeat="player in players" name="{{player}}"></player>
-<button type="button" ng-click="join()" ng-hide="joined">join</button>
+<dealer></dealer>
+
+<rival ng-repeat="rival in rivals"
+       name="{{rival}}"></rival>
+
+<player ng-if="joined"
+        name="{{ _.find(players, function(p) { return p.human }) }}"></player>
+<button type="button"
+        ng-click="join()"
+        ng-hide="joined">join</button>
