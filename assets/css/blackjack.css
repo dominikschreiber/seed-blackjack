@@ -1,15 +1,74 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
 body {
-    padding: 48px;
-    background-color: #00420f;
+    height: 100%;
 }
 
-.alert {
-    padding: 12px;
-    background-color: #fff;
+/* ===== game table ============================================== */
+.game-table {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+
+    height: 100%;
+
+    background-color: #118832;
+    font-family: Helvetica, Arial, sans-serif;
 }
 
-.btn {
-    display: inline-block;
+/* ===== game info =============================================== */
+.game-info {
+    width: 100%;
+    background-color: rgba(255, 255, 255, .1);
+}
+
+.game-info p {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 24px;
+
+    color: #fff;
+    font-size: 400%;
+    font-weight: bold;
+}
+
+/* ===== players ================================================= */
+.dealer,
+.player {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+
+    width: 80%;
+}
+
+/* ===== game controls =========================================== */
+
+.game-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+
+    width: 100%;
+    padding: 24px 0;
+}
+
+/* ===== tokens ================================================== */
+
+.token {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     height: 96px;
     width: 96px;
 
@@ -24,53 +83,53 @@ body {
     cursor: pointer;
 }
 
-.btn-default {
+.token-default {
     border-color: #999;
     background-color: #eee;
     color: #999;
 }
-.btn-default:hover,
-.btn-default:focus,
-.btn-default:active {
+.token-default:hover,
+.token-default:focus,
+.token-default:active {
     border-color: #888;
     background-color: #ddd;
     color: #888;
 }
 
-.btn-success {
+.token-success {
     border-color: #393;
     background-color: #efe;
     color: #393;
 }
-.btn-success:hover,
-.btn-success:focus,
-.btn-success:active {
+.token-success:hover,
+.token-success:focus,
+.token-success:active {
     border-color: #282;
     background-color: #fff;
     color: #282;
 }
 
-.btn-danger {
+.token-danger {
     border-color: #933;
     background-color: #fee;
     color: #933;
 }
-.btn-danger:hover,
-.btn-danger:focus,
-.btn-danger:active {
+.token-danger:hover,
+.token-danger:focus,
+.token-danger:active {
     border-color: #822;
     background-color: #fff;
     color: #822;
 }
 
-.btn-info {
+.token-info {
     border-color: #339;
     background-color: #eef;
     color: #339;
 }
-.btn-info:hover,
-.btn-info:focus,
-.btn-info:active {
+.token-info:hover,
+.token-info:focus,
+.token-info:active {
     border-color: #228;
     background-color: #fff;
     color: #228;
