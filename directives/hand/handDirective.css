@@ -1,0 +1,8 @@
+.hand:before,
+.hand:after {
+    content: ' ';
+    display: table;
+}
+.hand:after {
+    clear: both;
+}
