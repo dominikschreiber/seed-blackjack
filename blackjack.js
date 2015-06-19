@@ -7,7 +7,7 @@ angular.module('blackjack', [
     'ng'
 ])
 
-.controller('BlackjackController', function($q, $log, $scope, $timeout, cards) {
+.controller('BlackjackController', function($q, $scope, $timeout, cards) {
     $scope.players = [];
 
     // "no hole card" -- dealer gets second card after players hands are played
@@ -17,15 +17,24 @@ angular.module('blackjack', [
             hand: [card],
             // dealer has to draw cards until his hand is 17 or higher
             play: function() {
-                if (optimalScore($scope.dealer.hand) < 17) {
-                    cards.draw().then(function(card) {
-                        handleDrawnCard($scope.dealer, card);
+                return $q(function(resolve) {
+                    function drawCard(resolve) {
+                        cards.draw().then(function(card) {
+                            handleDrawnCard($scope.dealer, card);
+                            if ($scope.optimalScore($scope.dealer.hand) < 17) {
+                                $timeout(function() { drawCard(resolve); }, 1000);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    }
 
-                        if (optimalScore($scope.dealer.hand) < 17) {
-                            $timeout(function() { $scope.dealer.play(); }, 1000);
-                        }
-                    });
-                }
+                    if ($scope.optimalScore($scope.dealer.hand) < 17) {
+                        drawCard(resolve);
+                    } else {
+                        resolve();
+                    }
+                });
             }            
         };
         $scope.players.push($scope.dealer);
@@ -60,30 +69,47 @@ angular.module('blackjack', [
 
     /** ends the round by determining the winner and dealing new cards */
     function endRound() {
-        $scope.dealer.play();
+        function hasValidScore(player) { return minimalScore(player.hand) < 22; }
 
-        var validScorers = _.chain($scope.players)
-                            .filter(function(player) { return minimalScore(player.hand) < 22; })
-                            .groupBy(function(player) { return optimalScore(player.hand) })
-                            .pairs()
-                            .max(function(pair) { return pair[0]; })
-                            .tap(function(i) { $log.log(JSON.stringify(i)) })
-                            .value();
+        function finalizeRound() {
+            var validScorers = _.chain($scope.players)
+                                .filter(hasValidScore)
+                                .groupBy(function(player) { return $scope.optimalScore(player.hand) })
+                                .pairs()
+                                .max(function(pair) { return pair[0]; })
+                                .value()[1]; // [1] removes groupBy value
 
-        $timeout(function() {
-            $scope.winner = undefined;
-            _.each($scope.players, function(player) {
-                if (player.is === 'dealer') {
-                    cards.draw().then(function(card) {
-                        player.hand = [card];
-                    });
-                } else {
-                    $q.all([cards.draw(), cards.draw()]).then(function(hand) {
-                        resetPlayer(player, hand);
-                    });
-                }
-            });
-        }, 3000);
+            if (validScorers.length > 1) {
+                $scope.result = {type: 'split', of: validScorers};
+            } else if (validScorers.length === 1) {
+                $scope.result = {type: 'win', of: validScorers[0]};
+            }
+
+            $timeout(function() {
+                $scope.result = undefined;
+                _.each($scope.players, function(player) {
+                    if (player.is === 'dealer') {
+                        cards.draw().then(function(card) {
+                            player.hand = [card];
+                        });
+                    } else {
+                        $q.all([cards.draw(), cards.draw()]).then(function(hand) {
+                            resetPlayer(player, hand);
+                        });
+                    }
+                });
+            }, 5000);
+        }
+
+        if (_.chain($scope.players)
+             .reject(function(player) { return player.is === 'dealer' })
+             .filter(hasValidScore)
+             .value()
+             .length > 0) {
+            $scope.dealer.play().then(finalizeRound);
+        } else {
+            finalizeRound();
+        }
     }
 
     /**
@@ -112,11 +138,12 @@ angular.module('blackjack', [
     }
 
     /** @return the optimal score for a given hand, i.e. counting aces as 11 or 1 as fits best */
-    function optimalScore(hand) {
+    $scope.optimalScore = function(hand) {
         function isAce(card) { return card.value === 'A'; }
         var minimal = minimalScore(hand);
 
-        return minimalScore(hand) + Math.min(_.filter(hand, isAce).length, Math.floor(21 - minimal / 10)) * 10;
+        if (minimal > 20) return minimal;
+        else return minimalScore(hand) + Math.min(_.filter(hand, isAce).length, Math.floor((21 - minimal) / 10)) * 10;
     }
 
     /** @return the score of a single card, counting aces as 1  */
