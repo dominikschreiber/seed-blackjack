@@ -3,204 +3,30 @@
 <html ng-app="blackjack">
 
 <head>
-<title ng-bind="meta.title()">Blackjack</title>
+    <title>Blackjack</title>
 
-<meta charset="utf-8">
-<meta name="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/blackjack.css">
+    <link rel="stylesheet" href="directives/card/cardDirective.css">
 </head>
 
 <body>
+    <players></players>
 
-<players></players>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
 
-<!-- 
-map and reduce are already javascript standard
-but using lodash for range and set intersection
-makes it more easier -- and once lodash is
-introduced, we should stick to it throughout the
-application
--->
-<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
+    <script src="blackjack.js"></script>
 
-<script>
-angular.module('blackjack', ['blackjack.players', 'ng']);
-</script>
+    <script src="services/cards/cardsService.js"></script>
+    <script src="services/engine/engineService.js"></script>
 
-<!--
-using promises ($q) whereever the current
-fully client-side approach could be later on
-changed to a client/server solution which
-e.g. uses websockets to allow multiplayer
-games
--->
-<script>
-angular.module('blackjack.cards', ['ng'])
-.service('cards', function($q) {
-    var drawncards = [];
-
-    /** @return a promise to resolve with all cards available in a new deck */
-    function getall() {
-        return $q(function(resolve) {
-            resolve(_.chain(['♣', '♠', '♥', '♦'])
-                    .map(function(suit) {
-                        return _.map(_.range(2,11).concat(['B', 'D', 'K', 'A']), function(value) {
-                            return {value: value, suit: suit};
-                        });
-                    })
-                    .reduce(function(deck, cards) { return deck.concat(cards); }, [])
-                    .value());
-        });
-    }
-
-    /** @return a promise to resolve with a drawn card that has not been drawn (or reject with 'deck empty') */
-    function draw() {
-        return $q(function(resolve, reject) {
-            getall().then(function(all) {
-                var card;
-
-                if (all.length === drawncards.length) {
-                    reject('deck empty. cards.reset() to get a new deck.');
-                } else {
-                    card = _.sample(_.without(all, drawncards));
-                    drawncards.push(card);
-                    resolve(card);
-                }
-            }, reject);
-        });
-    }
-
-    /** @return a promise to reset the deck */
-    function reset() {
-        $q(function(resolve) {
-            drawncards = [];
-            resolve();
-        });
-    }
-
-    return {
-        draw: draw,
-        reset: reset
-    };
-});
-</script>
-
-<script>
-angular.module('blackjack.engine', ['blackjack.cards', 'ng'])
-.service('engine', function($log, $q, cards) {
-    var players = {}
-      , engine = {
-            /** @return a promise to resolve with the id of the newly created player */
-            addPlayer: function() {
-                return $q(function(resolve) {
-                    var id = _.random(999);
-                    players[id] = {
-                        hand: []
-                    };
-                    resolve(id);
-                });
-            },
-
-            /** @return a promise to resolve with the minimal score player `id` has (i.e. treating all 'A' as 1, not 11) */
-            getMinimalScoreForPlayer: function(id) {
-                return $q(function(resolve) {
-                    resolve(_.chain(players[id].hand)
-                             .map(function(card) {
-                                switch (card.value) {
-                                    case 'A': return 1;
-                                    case 'B': case 'D': case 'K': return 10;
-                                    default: return window.parseInt(card.value);
-                                }
-                             })
-                             .sum()
-                             .value());
-                });
-            },
-
-            /** @return a promise to resolve with a drawn card for player `id` */
-            drawCardForPlayer: function(id) {
-                return $q(function(resolve, reject) {
-                    var card;
-
-                    if (!id in players) {
-                        reject('player ' + id + ' not in ' + _.keys(players));
-                    } else {
-                        cards.draw().then(function(card) {
-                            players[id].hand.push(card);
-                            engine.getMinimalScoreForPlayer(id).then(function(score) {
-                                resolve({
-                                    card: card,
-                                    canDrawMoreCards: score < 21,
-                                    isValid: score < 22
-                                });
-                            });
-                        });
-                    }
-                });
-            }
-        };
-
-    return engine;
-});
-</script>
-
-<script>
-angular.module('blackjack.players', ['blackjack.player', 'blackjack.engine', 'ng'])
-.directive('players', function(engine) {
-    return {
-        templateUrl: 'players.tpl.html',
-        link: function($scope, $element, $attributes) {
-            $scope.players = [];
-
-            $scope.join = function() {
-                engine.addPlayer().then(function(player) {
-                    $scope.players.push(player);
-                    $scope.joined = true;
-                });
-            };
-        }
-    }
-});
-</script>
-<script type="text/ng-template" id="players.tpl.html">
-<player ng-repeat="player in players" name="{{player}}"></player>
-<button type="button" ng-click="join()" ng-hide="joined">join</button>
-</script>
-
-<script>
-angular.module('blackjack.player', ['blackjack.engine', 'ng'])
-.directive('player', function($log, engine) {
-    return {
-        scope: {
-            name: '@'
-        },
-        templateUrl: 'player.tpl.html',
-        link: function($scope, $element, $attributes) {
-            $scope.hand = [];
-            $scope.canDrawMoreCards = true;
-            $scope.isValid = true;
-
-            $scope.hit = function() {
-                engine.drawCardForPlayer($scope.name).then(function(result) {
-                    $scope.hand.push(result.card);
-                    $scope.canDrawMoreCards = result.canDrawMoreCards;
-                    $scope.isValid = result.isValid;
-                });
-            };
-        }
-    };
-});
-</script>
-<script type="text/ng-template" id="player.tpl.html">
-<ul ng-class="{'text-danger': !isValid, 'text-success': !canDrawMoreCards && isValid}">
-    <li ng-repeat="card in hand" ng-bind="card.suit + card.value"></li>
-</ul>
-<button type="button" ng-click="stick()">stick</button>
-<button type="button" ng-click="hit()" ng-disabled="!canDrawMoreCards">hit</button>
-</script>
+    <script src="directives/players/playersDirective.js"></script>
+    <script src="directives/player/playerDirective.js"></script>
+    <script src="directives/card/cardDirective.js"></script>
 </body>
 
 </html>

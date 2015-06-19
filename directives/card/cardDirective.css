@@ -1,0 +1,42 @@
+.card {
+    position: relative;
+
+    display: block;
+    float: left;
+    width: 200px;
+    height: 300px;
+
+    border: 1px solid #999;
+    border-radius: 6px 6px 0 0;
+
+    background-color: #fff;
+
+    transform-origin: top;
+}
+.card-♣,
+.card-♠ {
+    color: #000;
+}
+.card-♥,
+.card-♦ {
+    color: #fb0b0b;
+}
+
+.card-content {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.card-value {
+    font-size: 168%;
+}
+
+.card-suit {
+    font-size: 132%;
+}

@@ -1,0 +1,13 @@
+<p>
+    <button type="button"
+            ng-click="stick()">stick</button>
+    <button type="button"
+            ng-click="hit()"
+            ng-disabled="!canDrawMoreCards">hit</button>
+</p>
+
+<card ng-repeat="card in hand track by $index"
+      value="{{ card.value }}"
+      suit="{{ card.suit }}"
+      index="{{ $index }}"
+      of="{{ hand.length }}"></card>
