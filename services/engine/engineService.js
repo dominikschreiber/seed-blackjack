@@ -18,6 +18,13 @@ angular.module('blackjack.engineService', ['blackjack.cardsService', 'ng'])
                 });
             },
 
+            /** @return a promise to resolve with the ids of all players */
+            getPlayers: function() {
+                return $q(function(resolve) {
+                    return _.keys(players);
+                });
+            },
+
             /** @return a promise to resolve with the minimal score player `id` has (i.e. treating all 'A' as 1, not 11) */
             getMinimalScoreForPlayer: function(id) {
                 return $q(function(resolve) {
