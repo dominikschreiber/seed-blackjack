@@ -9,6 +9,6 @@ angular.module('blackjack.handDirective', [
         scope: {
             content: '='
         },
-        templateUrl: 'directives/hand/handDirective.tpl.html'
+        templateUrl: 'directives/hand/handDirective.tpl.html',
     };
 });

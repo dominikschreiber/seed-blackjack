@@ -23,49 +23,29 @@
             <p ng-show="result && result.type === 'split'">split pot!</p>
         </div>
 
-        <!-- dealer -->
-        <div class="dealer">
-            <div ng-show="result"
-                 class="token token-danger"
-                 ng-class="{
-                    'token-success': result.type === 'win' && result.of.is === dealer.is,
-                    'token-info': result.type === 'split' && result.of.indexOf(dealer) > -1
-                 }"
-                 ng-cloak>{{optimalScore(dealer.hand)}}</div>
-            <hand content="dealer.hand"></hand>
-        </div>
-
-        <!-- player (if joined) -->
+        <!-- all players -->
         <div class="player"
-             ng-if="player"
-             ng-cloak>
-             <div ng-show="result"
-                 class="token token-danger"
+             ng-repeat="player in players">
+            <div class="token token-default"
                  ng-class="{
-                    'token-success': result.type === 'win' && result.of.is === player.is,
-                    'token-info': result.type === 'split' && result.of.indexOf(player) > -1
+                     'token-success': result.type === 'win' && result.of.is === player.is,
+                     'token-info': result.type === 'split' && result.of.indexOf(player) > -1
                  }"
-                 ng-cloak>{{optimalScore(player.hand)}}</div>
-            <hand content="player.hand"></hand>
+                 ng-cloak>{{player.hand.score()}}</div>
+            <hand content="player.hand.cards"></hand>
         </div>
 
         <!-- game controls -->
         <div class="game-controls">
             <button type="button"
                     class="token token-info"
-                    ng-click="join()"
-                    ng-hide="player">join</button>
+                    ng-click="join()">join</button>
             <button type="button"
                     class="token token-danger"
-                    ng-click="stick()"
-                    ng-show="player"
-                    ng-cloak>stick</button>
+                    ng-click="stick()">stick</button>
             <button type="button"
                     class="token token-success"
-                    ng-click="hit()"
-                    ng-disabled="!player.canDrawMoreCards"
-                    ng-show="player"
-                    ng-cloak>hit</button>
+                    ng-click="hit()">hit</button>
         </div>
     </div>
 
@@ -74,6 +54,9 @@
 
     <script src="blackjack.js"></script>
     <script src="services/cards/cardsService.js"></script>
+    <script src="services/game/gameService.js"></script>
+    <script src="services/hand/handService.js"></script>
+    <script src="services/strategy/strategyService.js"></script>
     <script src="directives/card/cardDirective.js"></script>
     <script src="directives/hand/handDirective.js"></script>
 </body>
