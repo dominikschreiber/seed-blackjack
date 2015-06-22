@@ -25,7 +25,7 @@
 
         <!-- all players -->
         <div class="player"
-             ng-repeat="player in players">
+             ng-repeat="player in players | reverse">
             <div class="token token-default"
                  ng-class="{
                      'token-success': result.type === 'win' && result.of.is === player.is,

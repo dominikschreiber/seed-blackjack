@@ -35,4 +35,10 @@ angular.module('blackjack', [
             $scope.result = undefined;
         }, 3 * 1000);
     });
+})
+
+.filter('reverse', function() {
+    return function(items) {
+        return items.slice().reverse();
+    }
 });
