@@ -42,10 +42,12 @@
                     ng-click="join()">join</button>
             <button type="button"
                     class="token token-danger"
-                    ng-click="stick()">stick</button>
+                    ng-click="stick()"
+                    ng-show="players.length > 1">stick</button>
             <button type="button"
                     class="token token-success"
-                    ng-click="hit()">hit</button>
+                    ng-click="hit()"
+                    ng-show="players.length > 1">hit</button>
         </div>
     </div>
 
