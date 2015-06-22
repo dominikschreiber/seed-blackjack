@@ -1,7 +1,5 @@
 <div class="card"
-     ng-class="'card-' + content.suit + ' card-' + content.value">
-    <div class="card-content">
-        <div class="card-value">{{content.value}}</div>
-        <div class="card-suit">{{content.suit}}</div>
-    </div>
+     ng-class="'card-' + content.suit + ' card-' + content.value + (isNew ? ' in' : '')">
+    <div class="card-value">{{content.value}}</div>
+    <div class="card-suit">{{content.suit}}</div>
 </div>
